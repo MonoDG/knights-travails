@@ -1,7 +1,4 @@
 // TODO create an directed graph where it connects all the possible movements (first and subsequent) the knight can to to reach a specific spot
-// function buildGraph(initialCoords) {
-//     if (initialCoords[0] < 0 || initialCoords[1] < 0) return;
-// }
 
 let kinghtMovements = [
     [-2, -1],
@@ -38,12 +35,12 @@ for (let i = 0; i < 8; i++) {
     }
 }
 let output = "";
-adjList.forEach((row) => {
-    row.forEach((column) => {
-        output += `Neighbors for vertex: `;
-        column.forEach((neighbor) => (output += `(${neighbor}),`));
+for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+        output += `Neighbors for vertex [${i},${j}]: `;
+        adjList[i][j].forEach((neighbor) => (output += `(${neighbor}),`));
         output += "\n";
-    });
+    }
     output += "\n";
-});
+}
 console.log(output);
