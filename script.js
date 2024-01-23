@@ -37,10 +37,47 @@ for (let i = 0; i < 8; i++) {
 let output = "";
 for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
+        // Visualization
         output += `Neighbors for vertex [${i},${j}]: `;
         adjList[i][j].forEach((neighbor) => (output += `(${neighbor}),`));
         output += "\n";
+
+        // Breadth-First Search
     }
     output += "\n";
 }
+
+function doBFS(graph, source, target) {
+    let queue = [...graph[source[0]][source[1]]];
+    let seen = [source];
+
+    while (queue.length > 0) {
+        let currentVertex = queue.shift();
+
+        for (let neighbor of currentNeighbors) {
+            if (
+                seen.find(
+                    (vertex) =>
+                        vertex[0] === neighbor[0] && vertex[1] === neighbor[1]
+                )
+            ) {
+                continue;
+            }
+
+            if (neighbor[0] === target[0] && neighbor[1] === target[1]) {
+                tempSeen.push(neighbor);
+                found = true;
+                break;
+            }
+            tempSeen.push(neighbor);
+            queue.push(graph[neighbor[0]][neighbor[1]]);
+        }
+    }
+    queue.push(graph[neighbor[0]][neighbor[1]]);
+    return seen;
+}
+
 console.log(output);
+console.log(doBFS(adjList, [0, 0], [3, 3]));
+// console.log(doBFS(adjList, [3, 3], [0, 0]));
+// console.log(doBFS(adjList, [0, 0], [7, 7]));
