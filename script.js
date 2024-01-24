@@ -134,4 +134,8 @@ function doBFSExample(graph, source) {
     return bfsInfo;
 }
 
-doBFS(createAdjacencyList(), [3, 3], [4, 3]);
+function knightMoves(source, target) {
+    doBFS(createAdjacencyList(), source, target);
+}
+
+knightMoves([3, 3], [4, 3]);
