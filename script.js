@@ -1,17 +1,17 @@
-// TODO create an directed graph where it connects all the possible movements (first and subsequent) the knight can to to reach a specific spot
+const ROWS = 8;
+const COLS = 8;
 
-let kinghtMovements = [
-    [-2, -1],
-    [-1, -2],
-    [1, -2],
-    [2, -1],
-    [2, 1],
-    [1, 2],
-    [-1, 2],
-    [-2, 1],
-];
-
-function movePiece(i, j) {
+function movePiece(array, i, j) {
+    let kinghtMovements = [
+        [-2, -1],
+        [-1, -2],
+        [1, -2],
+        [2, -1],
+        [2, 1],
+        [1, 2],
+        [-1, 2],
+        [-2, 1],
+    ];
     kinghtMovements.forEach(([offsetX, offsetY]) => {
         if (
             i + offsetX >= 0 &&
@@ -19,65 +19,119 @@ function movePiece(i, j) {
             i + offsetX < 8 &&
             j + offsetY < 8
         ) {
-            adjList[i][j].push([i + offsetX, j + offsetY]);
+            array[i][j].push([i + offsetX, j + offsetY]);
         }
     });
 }
 
 function createAdjacencyList() {
-    return Array.from(Array(8), () => Array.from(Array(8), () => new Array()));
-}
-
-let adjList = createAdjacencyList();
-for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-        movePiece(i, j, adjList);
-    }
-}
-let output = "";
-for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-        // Visualization
-        output += `Neighbors for vertex [${i},${j}]: `;
-        adjList[i][j].forEach((neighbor) => (output += `(${neighbor}),`));
-        output += "\n";
-
-        // Breadth-First Search
-    }
-    output += "\n";
-}
-
-function doBFS(graph, source, target) {
-    let queue = [...graph[source[0]][source[1]]];
-    let seen = [source];
-
-    while (queue.length > 0) {
-        let currentVertex = queue.shift();
-
-        for (let neighbor of currentNeighbors) {
-            if (
-                seen.find(
-                    (vertex) =>
-                        vertex[0] === neighbor[0] && vertex[1] === neighbor[1]
-                )
-            ) {
-                continue;
-            }
-
-            if (neighbor[0] === target[0] && neighbor[1] === target[1]) {
-                tempSeen.push(neighbor);
-                found = true;
-                break;
-            }
-            tempSeen.push(neighbor);
-            queue.push(graph[neighbor[0]][neighbor[1]]);
+    let array = Array.from(Array(8), () =>
+        Array.from(Array(8), () => new Array())
+    );
+    for (let i = 0; i < ROWS; i++) {
+        for (let j = 0; j < COLS; j++) {
+            movePiece(array, i, j);
         }
     }
-    queue.push(graph[neighbor[0]][neighbor[1]]);
-    return seen;
+    return array;
 }
 
-console.log(output);
-console.log(doBFS(adjList, [0, 0], [3, 3]));
-// console.log(doBFS(adjList, [3, 3], [0, 0]));
-// console.log(doBFS(adjList, [0, 0], [7, 7]));
+function visualize(graph) {
+    let output = "";
+    for (let i = 0; i < ROWS; i++) {
+        for (let j = 0; j < COLS; j++) {
+            // Visualization
+            output += `Neighbors for vertex [${i},${j}]: `;
+            graph[i][j].forEach((neighbor) => (output += `(${neighbor}),`));
+            output += "\n";
+
+            // Breadth-First Search
+        }
+        output += "\n";
+    }
+    console.log(output);
+}
+
+function doBFS(graph, [sourceX, sourceY], [targetX, targetY]) {
+    const bfsInfo = new Array(ROWS);
+    const path = [];
+
+    for (let i = 0; i < graph.length; i++) {
+        bfsInfo[i] = new Array(COLS);
+        for (let j = 0; j < graph[i].length; j++) {
+            bfsInfo[i][j] = {
+                distance: null,
+                predecessor: null,
+            };
+        }
+    }
+
+    bfsInfo[sourceX][sourceY].distance = 0;
+
+    let queue = [];
+    queue.push([sourceX, sourceY]);
+
+    while (queue.length > 0) {
+        let [x, y] = queue.shift();
+        if (x === targetX && y === targetY) {
+            let currentNode = bfsInfo[x][y];
+            path.push([x, y]);
+            while (currentNode.predecessor !== null) {
+                path.push(currentNode.predecessor);
+                currentNode =
+                    bfsInfo[currentNode.predecessor[0]][
+                        currentNode.predecessor[1]
+                    ];
+            }
+            path.reverse();
+            console.log(
+                `You made it in ${path.length - 1} moves! Here's your path:`
+            );
+            for (let step of path) {
+                console.log(step);
+            }
+        }
+        for (let i = 0; i < graph[x][y].length; i++) {
+            let [xNeighbor, yNeighbor] = graph[x][y][i];
+            if (bfsInfo[xNeighbor][yNeighbor].distance === null) {
+                bfsInfo[xNeighbor][yNeighbor].distance =
+                    bfsInfo[x][y].distance + 1;
+                bfsInfo[xNeighbor][yNeighbor].predecessor = [x, y];
+                queue.push([xNeighbor, yNeighbor]);
+            }
+        }
+    }
+    return path;
+}
+
+function doBFSExample(graph, source) {
+    const bfsInfo = [];
+
+    for (let i = 0; i < graph.length; i++) {
+        bfsInfo[i] = {
+            distance: null,
+            predecessor: null,
+        };
+    }
+
+    bfsInfo[source].distance = 0;
+
+    let queue = [];
+    queue.push(source);
+
+    while (queue.length > 0) {
+        let vertex = queue.shift();
+        for (let i = 0; i < graph[vertex].length; i++) {
+            let neighbor = graph[vertex][i];
+            if (bfsInfo[neighbor].distance === null) {
+                bfsInfo[neighbor].distance = bfsInfo[vertex].distance + 1;
+                bfsInfo[neighbor].predecessor = vertex;
+                queue.push(neighbor);
+            }
+        }
+    }
+
+    return bfsInfo;
+}
+
+doBFS(createAdjacencyList(), [3, 3], [4, 3]);
